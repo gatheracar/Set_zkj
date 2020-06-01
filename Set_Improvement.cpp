@@ -68,9 +68,9 @@ class SET {
 };
 
 void SET::setup() {
-    cout << "输入集合:" << endl;
+    //cout << "输入集合:" << endl;
+    //getline(cin, str_in);
     cnt_OP = 0;
-    getline(cin, str_in);
     str_in += " ";
     judgement(str_in);
     // display();
@@ -169,6 +169,7 @@ void SET::Cartesian_product(const SET& S2) {  //笛卡尔积
     }
 }
 void SET::Global_relationship() {  //全域关系
+    cout << "The Globalrelationship is :" ;
     set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
         set<int>::iterator itint_temp = I.begin();
@@ -202,7 +203,7 @@ void SET::Global_relationship() {  //全域关系
         set<int>::iterator itint_temp = I.begin();
         for (int j = 0; j < I.size(); j++) {
             cout << "<";
-            cout << *itint << ",";
+            cout << *itchar << ",";
             cout << *itint_temp;
             cout << "> , ";
             ++itint_temp;
@@ -210,7 +211,7 @@ void SET::Global_relationship() {  //全域关系
         set<char>::iterator itchar_temp = CH.begin();
         for (int j = 0; j < CH.size(); j++) {
             cout << "<";
-            cout << *itint << ",";
+            cout << *itchar << ",";
             cout << *itchar_temp;
             cout << "> , ";
             ++itchar_temp;
@@ -218,7 +219,7 @@ void SET::Global_relationship() {  //全域关系
         set<string>::iterator itstring_temp = STR.begin();
         for (int j = 0; j < STR.size(); j++) {
             cout << "<";
-            cout << *itint << ",";
+            cout << *itchar << ",";
             cout << *itstring_temp;
             cout << "> , ";
             ++itstring_temp;
@@ -230,7 +231,7 @@ void SET::Global_relationship() {  //全域关系
         set<int>::iterator itint_temp = I.begin();
         for (int j = 0; j < I.size(); j++) {
             cout << "<";
-            cout << *itint << ",";
+            cout << *itstring << ",";
             cout << *itint_temp;
             cout << "> , ";
             ++itint_temp;
@@ -238,7 +239,7 @@ void SET::Global_relationship() {  //全域关系
         set<char>::iterator itchar_temp = CH.begin();
         for (int j = 0; j < CH.size(); j++) {
             cout << "<";
-            cout << *itint << ",";
+            cout << *itstring << ",";
             cout << *itchar_temp;
             cout << "> , ";
             ++itchar_temp;
@@ -246,15 +247,17 @@ void SET::Global_relationship() {  //全域关系
         set<string>::iterator itstring_temp = STR.begin();
         for (int j = 0; j < STR.size(); j++) {
             cout << "<";
-            cout << *itint << ",";
+            cout << *itstring << ",";
             cout << *itstring_temp;
             cout << "> , ";
             ++itstring_temp;
         }
         ++itstring;
     }
+    cout << endl;
 }
 void SET::Identity_relationship() {  //恒等关系
+    cout << "The identity relationship are :";
     set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
         cout << "<";
@@ -279,8 +282,10 @@ void SET::Identity_relationship() {  //恒等关系
         cout << "> , ";
         ++itstring;
     }
+    cout <<endl;
 }
 void SET::LA() {  //小于或等于关系
+    cout << "The LA is :";
     set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
         set<int>::iterator itint_temp = itint;
@@ -317,6 +322,7 @@ void SET::LA() {  //小于或等于关系
         }
         ++itstring;
     }
+    cout << endl;
 }
 void SET::fldR() {  //域
     SET Temp_fldR;
@@ -354,7 +360,6 @@ SET SET::domR() {  //定义域
         ++itchar;
     }
     cout << "} " << endl;
-    ;
     return Temp;
 }
 SET SET::ranR() {  //值域
@@ -379,7 +384,7 @@ SET SET::ranR() {  //值域
     return Temp;
 }
 void SET::inverse() {  //逆关系
-    cout << "The inverse relationship are: " << endl;
+    cout << "The inverse relationship are: ";
     vector<order_pair> OP_temp;
     order_pair op_temp;
     op_temp = {-1, -1, '\0', '\0', "", ""};
@@ -664,44 +669,27 @@ inline SET SET::power() {
 }
 
 int main() {
-    // ifstream in1("input1.txt");
-    // ifstream in2("input2.txt");
+    ifstream in1("input1.txt");
+    ifstream in2("input2.txt");
     SET SET1;
-    // in1 >> SET1.str_in;
+    in1 >> SET1.str_in;
     SET SET2;
-    // in2 >> SET2.str_in;
+    in2 >> SET2.str_in;
     SET1.setup();
-    SET1.inverse();
-    // SET2.setup();
+    SET2.setup();
+
     // if (SET1.judgement_binary_relation())
     //     cout << "SET1是二元关系" << endl;
     // else
     //     cout << "SET1不是二元关系" << endl;
-    // SET1.Cartesian_product(SET2);
-    // SET SET3;
-    // SET3 = SET1 * SET2;
-    // cout << SET3 << endl;
-    // int* s3;
+    //SET1.Cartesian_product(SET2);    //笛卡尔积
+    //SET1.Global_relationship();      //全域关系
+    //SET1.Identity_relationship();    //恒等关系
+    //SET1.LA();                       //小于或等于关系
+    //SET1.fldR();                     //域
+    //SET1.inverse();                  //逆关系
 
-    // s3 = s1 & s2;
-    // cout << "两个集合的并集为：" << endl;
-    // for (int i = 0; i < s1.lena; i++) cout << s3[i] << " ";
-    // cout << endl;
-
-    // s3 = s1 * s2;
-    // cout << "两个集合的交集为：" << endl;
-    // for (int i = 0; i < s1.lena; i++) cout << s3[i] << " ";
-    // cout << endl;
-
-    // s3 = s1 - s2;
-    // cout << "s1对s2的差集为：" << endl;
-    // for (int i = 0; i < s1.lena; i++) {
-    //     cout << s3[i] << " ";
-    // }
-    // cout << endl;
-
-    // s1.power_set(s2);
-    // in1.close();
-    // in2.close();
+    in1.close();
+    in2.close();
     return 0;
 }
