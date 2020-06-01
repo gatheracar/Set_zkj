@@ -30,10 +30,11 @@ class SET {
     void Cartesian_product(const SET& S2);                     //笛卡尔积
     void Global_relationship();                                //全域关系
     void Identity_relationship();                              //恒等关系
-    void LA();    //小于或等于关系
-    SET domR();   //定义域
-    SET ranR();   //值域
-    void fldR();  //域
+    void LA();       //小于或等于关系
+    SET domR();      //定义域
+    SET ranR();      //值域
+    void fldR();     //域
+    void inverse();  //逆关系
     void judgement(string str);
     void judgement_OP(string str_OP);
     bool judgement_binary_relation();  //判断是否为二元关系
@@ -41,6 +42,7 @@ class SET {
     size_t SETHash() const;
     inline SET power();
     void display(const SET& t);
+    void display_op(const SET& t);
     inline void push(int IN);
     inline void push(char ch);
     inline void push(string str);
@@ -60,7 +62,7 @@ class SET {
     set<char> CH;
     set<string> STR;
     set<SET> SETS;
-    vector<order_pair> OP;
+    vector<order_pair> OP;  //用来存储序偶
 
     int cnt_OP;  //用来存储序偶的个数
 };
@@ -319,7 +321,7 @@ void SET::LA() {  //小于或等于关系
 void SET::fldR() {  //域
     SET Temp_fldR;
     Temp_fldR = ranR() & domR();
-   
+
     cout << "The fldR is :{";
     set<int>::iterator itint = Temp_fldR.I.begin();
     for (int i = 0; i < Temp_fldR.I.size(); i++) {
@@ -351,7 +353,8 @@ SET SET::domR() {  //定义域
         cout << *itchar << ",";
         ++itchar;
     }
-    cout << "} " << endl;;
+    cout << "} " << endl;
+    ;
     return Temp;
 }
 SET SET::ranR() {  //值域
@@ -374,6 +377,40 @@ SET SET::ranR() {  //值域
     }
     cout << "} " << endl;
     return Temp;
+}
+void SET::inverse() {  //逆关系
+    cout << "The inverse relationship are: " << endl;
+    vector<order_pair> OP_temp;
+    order_pair op_temp;
+    op_temp = {-1, -1, '\0', '\0', "", ""};
+    for (int i = 0; i < OP.size(); i++) {
+        for (int j = 0; j < 2; j++) {
+            op_temp.PI[1 - j] = OP[i].PI[j];
+            op_temp.PCH[1 - j] = OP[i].PCH[j];
+        }
+        op_temp.PSTR0 = OP[i].PSTR1;
+        op_temp.PSTR1 = OP[i].PSTR0;
+        OP_temp.push_back(op_temp);
+    }
+    for (int i = 0; i < OP.size(); i++) {
+        cout << "<";
+        for (int j = 0; j < 2; j++) {
+            if (OP_temp[i].PI[j] != -1) {
+                cout << OP_temp[i].PI[j];
+            }
+            if (OP_temp[i].PCH[j] != '\0') {
+                cout << OP_temp[i].PCH[j];
+            }
+            if (OP_temp[i].PSTR0 != "" && j != 1) {
+                cout << OP_temp[i].PSTR0;
+            }
+            if (OP_temp[i].PSTR1 != "" && j != 0) {
+                cout << OP_temp[i].PSTR1;
+            }
+            if (j != 1) cout << ",";
+        }
+        cout << "> ";
+    }
 }
 void SET::judgement(string str) {
     int len = str.length();
@@ -470,7 +507,7 @@ inline void SET::judgement_domR(int x) {}
 inline bool SET::operator<(const SET& S) const {
     return SETHash() < S.SETHash();
 }
-inline void SET::show(int x, int y) {
+inline void SET::show(int x, int y) {  //输出所有暂存序偶
     if (OP[x].PI[y] != -1) {
         cout << OP[x].PI[y];
     }
@@ -484,7 +521,6 @@ inline void SET::show(int x, int y) {
         cout << OP[x].PSTR1;
     }
 }
-
 void SET::display(const SET& t) {
     set<int>::iterator itint = t.I.begin();
     for (int i = 0; i < I.size(); i++) {
@@ -510,7 +546,6 @@ void SET::display(const SET& t) {
         cout << "> ";
     }
 }
-
 SET SET::operator*(const SET& t) {  //交集
     SET Temp;
     for (int i : I)
@@ -543,7 +578,7 @@ SET SET::operator-(const SET& t) {  //差集
         if (t.STR.find(str) == t.STR.end()) Temp.push(str);
     return Temp;
 }
-SET SET::Symmetrical_difference(const SET& S1, const SET& S2) {
+SET SET::Symmetrical_difference(const SET& S1, const SET& S2) {  //对称差
     SET Temp;
     for (int i : S1.I)
         if (S2.I.find(i) == S2.I.end()) Temp.push(i);
@@ -563,7 +598,7 @@ SET SET::Symmetrical_difference(const SET& S1, const SET& S2) {
         if (S1.STR.find(str) == S1.STR.end()) Temp.push(str);
     return Temp;
 }
-void SET::power(int i, SET T, SET* Res) {
+void SET::power(int i, SET T, SET* Res) {  //幂集
     if (i == size()) {
         Res->push(T);
         return;
@@ -636,6 +671,7 @@ int main() {
     SET SET2;
     // in2 >> SET2.str_in;
     SET1.setup();
+    SET1.inverse();
     // SET2.setup();
     // if (SET1.judgement_binary_relation())
     //     cout << "SET1是二元关系" << endl;
