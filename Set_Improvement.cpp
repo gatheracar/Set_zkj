@@ -20,7 +20,7 @@ class SET;
 ostream& operator<<(ostream& os, SET& S);  // SET类重载<<声明
 
 class SET {
-   public:
+public:
     void setup();
     SET operator*(const SET& t);                               //交集
     SET operator&(const SET& t);                               //并集
@@ -54,22 +54,27 @@ class SET {
     inline void judgement_domR(int x);
     inline bool operator<(const SET& S) const;        //重载<
     friend ostream& operator<<(ostream& os, SET& S);  //声明重载符号<<(友元)
-    friend istream& operator>>(istream& in, SET& S);  //声明重载符号>>(友元)
-    string str_in;
+    friend istream& operator>>(istream& in, SET& S);  //声明重载符号>>(友元) 
 
-   private:
+private:
     set<int> I;
     set<char> CH;
     set<string> STR;
     set<SET> SETS;
     vector<order_pair> OP;  //用来存储序偶
-
+    
+    string str_in;
     int cnt_OP;  //用来存储序偶的个数
 };
 
 void SET::setup() {
     //cout << "输入集合:" << endl;
     //getline(cin, str_in);
+    ifstream in("input1.txt");
+    while (!in.eof()) {
+        getline(in,str_in);
+    }
+    in.close();
     cnt_OP = 0;
     str_in += " ";
     judgement(str_in);
@@ -169,7 +174,7 @@ void SET::Cartesian_product(const SET& S2) {  //笛卡尔积
     }
 }
 void SET::Global_relationship() {  //全域关系
-    cout << "The Globalrelationship is :" ;
+    cout << "The Globalrelationship is :";
     set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
         set<int>::iterator itint_temp = I.begin();
@@ -282,7 +287,7 @@ void SET::Identity_relationship() {  //恒等关系
         cout << "> , ";
         ++itstring;
     }
-    cout <<endl;
+    cout << endl;
 }
 void SET::LA() {  //小于或等于关系
     cout << "The LA is :";
@@ -387,7 +392,7 @@ void SET::inverse() {  //逆关系
     cout << "The inverse relationship are: ";
     vector<order_pair> OP_temp;
     order_pair op_temp;
-    op_temp = {-1, -1, '\0', '\0', "", ""};
+    op_temp = { -1, -1, '\0', '\0', "", "" };
     for (int i = 0; i < OP.size(); i++) {
         for (int j = 0; j < 2; j++) {
             op_temp.PI[1 - j] = OP[i].PI[j];
@@ -433,7 +438,7 @@ void SET::judgement(string str) {
         }
         //判断是数字 存入I中
         else if (str[i] >= '0' && str[i] <= '9' &&
-                 (str[i + 1] == ' ' || str[i + 1] == '\0')) {
+            (str[i + 1] == ' ' || str[i + 1] == '\0')) {
             push_I(str[i]);
             // cout << "Str " << i <<"为：" << (int)str[i] << endl;
         }
@@ -448,8 +453,8 @@ void SET::judgement(string str) {
         }
         // 判断是其他字符 存入CH中
         else if ((str[i] >= 'a' && str[i] <= 'z') ||
-                 (str[i] >= 'A' && str[i] <= 'Z') && str[i] != ' ' &&
-                     (str[i + 1] == ' ' || str[i + 1] == '\0'))
+            (str[i] >= 'A' && str[i] <= 'Z') && str[i] != ' ' &&
+            (str[i + 1] == ' ' || str[i + 1] == '\0'))
             push_CH(str[i]);
         // cout << "Error:" << str[i] << " Illegal character"<< endl;
     }
@@ -460,7 +465,7 @@ void SET::judgement_OP(string str_OP) {
     int cnt = 0;
     //将输入行分类别存入序偶容器中
     order_pair op_temp;
-    op_temp = {-1, -1, '\0', '\0', "", ""};
+    op_temp = { -1, -1, '\0', '\0', "", "" };
     for (int i = 0; i < len; i++) {
         //判断是, 则序偶前半部分结束储存 开始后半部分序偶的储存
         if (str_OP[i] == ',' || str_OP[i] == '<') i++;
@@ -491,8 +496,8 @@ void SET::judgement_OP(string str_OP) {
         }
         // 判断是其他字母字符 存入OPCH中
         else if ((str_OP[i] >= 'a' && str_OP[i] <= 'z') ||
-                 (str_OP[i] >= 'A' && str_OP[i] <= 'Z') &&
-                     (str_OP[i + 1] == ',' || str_OP[i + 1] == '>')) {
+            (str_OP[i] >= 'A' && str_OP[i] <= 'Z') &&
+            (str_OP[i + 1] == ',' || str_OP[i + 1] == '>')) {
             op_temp.PCH[cnt] = str_OP[i];
             cnt++;
         }
@@ -607,20 +612,23 @@ void SET::power(int i, SET T, SET* Res) {  //幂集
     if (i == size()) {
         Res->push(T);
         return;
-    } else {
+    }
+    else {
         power(i + 1, T, Res);
         int ii = i;
         if (ii < I.size()) {
             set<int>::iterator isi = I.begin();
             for (int I = 0; I < ii; I++) isi++;
             T.push(*isi);
-        } else {
+        }
+        else {
             ii -= I.size();
             if (ii < CH.size()) {
                 set<char>::iterator chsi = CH.begin();
                 for (int I = 0; I < ii; I++) chsi++;
                 T.push(*chsi);
-            } else {
+            }
+            else {
                 ii -= CH.size();
                 if (ii < STR.size()) {
                     set<string>::iterator strsi = STR.begin();
@@ -669,14 +677,11 @@ inline SET SET::power() {
 }
 
 int main() {
-    ifstream in1("input1.txt");
-    ifstream in2("input2.txt");
     SET SET1;
-    in1 >> SET1.str_in;
-    SET SET2;
-    in2 >> SET2.str_in;
+    //SET SET2;
+    //in2 >> SET2.str_in;
     SET1.setup();
-    SET2.setup();
+    //SET2.setup();
 
     // if (SET1.judgement_binary_relation())
     //     cout << "SET1是二元关系" << endl;
@@ -689,7 +694,6 @@ int main() {
     //SET1.fldR();                     //域
     //SET1.inverse();                  //逆关系
 
-    in1.close();
-    in2.close();
+    
     return 0;
 }
