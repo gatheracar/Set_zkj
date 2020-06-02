@@ -20,7 +20,7 @@ class SET;
 ostream& operator<<(ostream& os, SET& S);  // SET类重载<<声明
 
 class SET {
-public:
+   public:
     void setup();
     SET operator*(const SET& t);                               //交集
     SET operator&(const SET& t);                               //并集
@@ -41,8 +41,8 @@ public:
     inline size_t size() const;
     size_t SETHash() const;
     inline SET power();
-    void display(const SET& t);
-    void display_op(const SET& t);
+    void display();
+    void display_Relationship_matrix();  //显示矩阵
     inline void push(int IN);
     inline void push(char ch);
     inline void push(string str);
@@ -54,25 +54,25 @@ public:
     inline void judgement_domR(int x);
     inline bool operator<(const SET& S) const;        //重载<
     friend ostream& operator<<(ostream& os, SET& S);  //声明重载符号<<(友元)
-    friend istream& operator>>(istream& in, SET& S);  //声明重载符号>>(友元) 
+    friend istream& operator>>(istream& in, SET& S);  //声明重载符号>>(友元)
 
-private:
+   private:
     set<int> I;
     set<char> CH;
     set<string> STR;
     set<SET> SETS;
     vector<order_pair> OP;  //用来存储序偶
-    
+
     string str_in;
     int cnt_OP;  //用来存储序偶的个数
 };
 
 void SET::setup() {
-    //cout << "输入集合:" << endl;
-    //getline(cin, str_in);
+    // cout << "输入集合:" << endl;
+    // getline(cin, str_in);
     ifstream in("input1.txt");
     while (!in.eof()) {
-        getline(in,str_in);
+        getline(in, str_in);
     }
     in.close();
     cnt_OP = 0;
@@ -392,7 +392,7 @@ void SET::inverse() {  //逆关系
     cout << "The inverse relationship are: ";
     vector<order_pair> OP_temp;
     order_pair op_temp;
-    op_temp = { -1, -1, '\0', '\0', "", "" };
+    op_temp = {-1, -1, '\0', '\0', "", ""};
     for (int i = 0; i < OP.size(); i++) {
         for (int j = 0; j < 2; j++) {
             op_temp.PI[1 - j] = OP[i].PI[j];
@@ -438,7 +438,7 @@ void SET::judgement(string str) {
         }
         //判断是数字 存入I中
         else if (str[i] >= '0' && str[i] <= '9' &&
-            (str[i + 1] == ' ' || str[i + 1] == '\0')) {
+                 (str[i + 1] == ' ' || str[i + 1] == '\0')) {
             push_I(str[i]);
             // cout << "Str " << i <<"为：" << (int)str[i] << endl;
         }
@@ -453,8 +453,8 @@ void SET::judgement(string str) {
         }
         // 判断是其他字符 存入CH中
         else if ((str[i] >= 'a' && str[i] <= 'z') ||
-            (str[i] >= 'A' && str[i] <= 'Z') && str[i] != ' ' &&
-            (str[i + 1] == ' ' || str[i + 1] == '\0'))
+                 (str[i] >= 'A' && str[i] <= 'Z') && str[i] != ' ' &&
+                     (str[i + 1] == ' ' || str[i + 1] == '\0'))
             push_CH(str[i]);
         // cout << "Error:" << str[i] << " Illegal character"<< endl;
     }
@@ -465,7 +465,7 @@ void SET::judgement_OP(string str_OP) {
     int cnt = 0;
     //将输入行分类别存入序偶容器中
     order_pair op_temp;
-    op_temp = { -1, -1, '\0', '\0', "", "" };
+    op_temp = {-1, -1, '\0', '\0', "", ""};
     for (int i = 0; i < len; i++) {
         //判断是, 则序偶前半部分结束储存 开始后半部分序偶的储存
         if (str_OP[i] == ',' || str_OP[i] == '<') i++;
@@ -496,13 +496,14 @@ void SET::judgement_OP(string str_OP) {
         }
         // 判断是其他字母字符 存入OPCH中
         else if ((str_OP[i] >= 'a' && str_OP[i] <= 'z') ||
-            (str_OP[i] >= 'A' && str_OP[i] <= 'Z') &&
-            (str_OP[i + 1] == ',' || str_OP[i + 1] == '>')) {
+                 (str_OP[i] >= 'A' && str_OP[i] <= 'Z') &&
+                     (str_OP[i + 1] == ',' || str_OP[i + 1] == '>')) {
             op_temp.PCH[cnt] = str_OP[i];
             cnt++;
         }
         // cout << "Error:" << str_OP[i] << " Illegal character"<< endl;
     }
+    cnt_OP++;
     OP.push_back(op_temp);
 }
 inline void SET::push(int IN) { I.insert(IN); };
@@ -531,18 +532,18 @@ inline void SET::show(int x, int y) {  //输出所有暂存序偶
         cout << OP[x].PSTR1;
     }
 }
-void SET::display(const SET& t) {
-    set<int>::iterator itint = t.I.begin();
+void SET::display() {
+    set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
         cout << *itint << " " << endl;
         itint++;
     }
-    set<string>::iterator itstr = t.STR.begin();
+    set<string>::iterator itstr = STR.begin();
     for (int i = 0; i < STR.size(); i++) {
         cout << *itstr << " " << endl;
         itstr++;
     }
-    set<char>::iterator itchar = t.CH.begin();
+    set<char>::iterator itchar = CH.begin();
     for (int i = 0; i < CH.size(); i++) {
         cout << *itchar << " " << endl;
         itchar++;
@@ -554,6 +555,27 @@ void SET::display(const SET& t) {
             if (j != 1) cout << ",";
         }
         cout << "> ";
+    }
+}
+void SET::display_Relationship_matrix() {  //关系矩阵输出
+    set<int>::iterator itint = I.begin();
+    int cnt = 0;
+    for (int i = 0; i < I.size(); i++) {
+        cout << "|";
+        set<int>::iterator itint_j = I.begin();
+        for (int j = 0; j < I.size(); j++) {
+            if (OP[cnt].PI[0] == *itint && OP[cnt].PI[1] == *itint_j)
+            {
+                cout << "1 ";
+                if (cnt < cnt_OP - 1)
+                    cnt++;
+            }
+            else
+                cout << "0 ";
+            ++itint_j;
+        }
+        ++itint;
+        cout << "|" << endl;
     }
 }
 SET SET::operator*(const SET& t) {  //交集
@@ -612,23 +634,20 @@ void SET::power(int i, SET T, SET* Res) {  //幂集
     if (i == size()) {
         Res->push(T);
         return;
-    }
-    else {
+    } else {
         power(i + 1, T, Res);
         int ii = i;
         if (ii < I.size()) {
             set<int>::iterator isi = I.begin();
             for (int I = 0; I < ii; I++) isi++;
             T.push(*isi);
-        }
-        else {
+        } else {
             ii -= I.size();
             if (ii < CH.size()) {
                 set<char>::iterator chsi = CH.begin();
                 for (int I = 0; I < ii; I++) chsi++;
                 T.push(*chsi);
-            }
-            else {
+            } else {
                 ii -= CH.size();
                 if (ii < STR.size()) {
                     set<string>::iterator strsi = STR.begin();
@@ -679,21 +698,21 @@ inline SET SET::power() {
 int main() {
     SET SET1;
     //SET SET2;
-    //in2 >> SET2.str_in;
+    // in2 >> SET2.str_in;
     SET1.setup();
+    SET1.display_Relationship_matrix();
     //SET2.setup();
 
     // if (SET1.judgement_binary_relation())
     //     cout << "SET1是二元关系" << endl;
     // else
     //     cout << "SET1不是二元关系" << endl;
-    //SET1.Cartesian_product(SET2);    //笛卡尔积
-    //SET1.Global_relationship();      //全域关系
-    //SET1.Identity_relationship();    //恒等关系
-    //SET1.LA();                       //小于或等于关系
-    //SET1.fldR();                     //域
-    //SET1.inverse();                  //逆关系
+    // SET1.Cartesian_product(SET2);    //笛卡尔积
+    // SET1.Global_relationship();      //全域关系
+    // SET1.Identity_relationship();    //恒等关系
+    // SET1.LA();                       //小于或等于关系
+    // SET1.fldR();                     //域
+    // SET1.inverse();                  //逆关系
 
-    
     return 0;
 }
