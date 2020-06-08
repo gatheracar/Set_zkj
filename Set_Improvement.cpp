@@ -17,32 +17,36 @@ typedef struct order_pair {
 } Repair;
 
 class SET;
-ostream& operator<<(ostream& os, SET& S);  // SETÀàÖØÔØ<<ÉùÃ÷
-
+class Multiple_SET;
+ostream& operator<<(ostream& os, SET& S);  // SETç±»é‡è½½<<å£°æ˜
+/***********************************SETç±»çš„å®Œæ•´å£°æ˜*************************************/
 class SET {
-   public:
+public:
     void setup();
-    SET operator*(const SET& t);                               //½»¼¯
-    SET operator&(const SET& t);                               //²¢¼¯
-    SET operator-(const SET& t);                               //²î¼¯
-    void power(int i, SET T, SET* Res);                        //Ãİ¼¯
-    SET Symmetrical_difference(const SET& S1, const SET& S2);  //¶Ô³Æ²î
-    void Cartesian_product(const SET& S2);                     //µÑ¿¨¶û»ı
-    void Global_relationship();                                //È«Óò¹ØÏµ
-    void Identity_relationship();                              //ºãµÈ¹ØÏµ
-    void LA();       //Ğ¡ÓÚ»òµÈÓÚ¹ØÏµ
-    SET domR();      //¶¨ÒåÓò
-    SET ranR();      //ÖµÓò
-    void fldR();     //Óò
-    void inverse();  //Äæ¹ØÏµ
+    SET operator*(const SET& t);                               //äº¤é›†
+    SET operator&(const SET& t);                               //å¹¶é›†
+    SET operator-(const SET& t);                               //å·®é›†
+    void power(int i, SET T, SET* Res);                        //å¹‚é›†
+    SET Symmetrical_difference(const SET& S1, const SET& S2);  //å¯¹ç§°å·®
+    void Cartesian_product(const SET& S2);                     //ç¬›å¡å°”ç§¯
+    void Global_relationship();                                //å…¨åŸŸå…³ç³»
+    void Identity_relationship();                              //æ’ç­‰å…³ç³»
+    void LA();                                                 //å°äºæˆ–ç­‰äºå…³ç³»
+    SET domR();                                                //å®šä¹‰åŸŸã€é¡¶ç‚¹é›†
+    SET ranR();                                                //å€¼åŸŸ
+    void fldR();                                               //åŸŸ
+    void inverse();                                            //é€†å…³ç³»
     void judgement(string str);
     void judgement_OP(string str_OP);
-    bool judgement_binary_relation();  //ÅĞ¶ÏÊÇ·ñÎª¶şÔª¹ØÏµ
+    void judgement_Disordered_product(const SET& s1, const SET& s2); //åˆ¤æ–­æ˜¯å¦æ˜¯æ— åºç§¯
+    bool judgement_binary_relation();                          //åˆ¤æ–­æ˜¯å¦ä¸ºäºŒå…ƒå…³ç³»
+    void neighborhood(int t);
     inline size_t size() const;
     size_t SETHash() const;
     inline SET power();
     void display();
-    void display_Relationship_matrix();  //ÏÔÊ¾¾ØÕó
+    void M_display();
+    void display_Relationship_matrix();                       //æ˜¾ç¤ºçŸ©é˜µ
     inline void push(int IN);
     inline void push(char ch);
     inline void push(string str);
@@ -52,41 +56,110 @@ class SET {
     inline void push_STR(string STRING);
     inline void show(int x, int y);
     inline void judgement_domR(int x);
-    inline bool operator<(const SET& S) const;        //ÖØÔØ<
-    friend ostream& operator<<(ostream& os, SET& S);  //ÉùÃ÷ÖØÔØ·ûºÅ<<(ÓÑÔª)
-    friend istream& operator>>(istream& in, SET& S);  //ÉùÃ÷ÖØÔØ·ûºÅ>>(ÓÑÔª)
+    inline void M_judgement(string str);
+    inline bool operator<(const SET& S) const;               //é‡è½½<
+    friend ostream& operator<<(ostream& os, SET& S);         //å£°æ˜é‡è½½ç¬¦å·<<(å‹å…ƒ)
 
-   private:
+private:
     set<int> I;
     set<char> CH;
     set<string> STR;
     set<SET> SETS;
-    vector<order_pair> OP;  //ÓÃÀ´´æ´¢ĞòÅ¼
-
-    string str_in;
-    int cnt_OP;  //ÓÃÀ´´æ´¢ĞòÅ¼µÄ¸öÊı
+    vector<order_pair> OP;                                   //ç”¨æ¥å­˜å‚¨åºå¶
+    multiset<int> M_SET;                                     //ç”¨æ¥å­˜å‚¨å¤šé‡é›†
+    string str_in;                                           //ç”¨æ¥å­˜å‚¨è¯»å–çš„æ•°æ®
+    int cnt_OP;                                              //ç”¨æ¥å­˜å‚¨åºå¶çš„ä¸ªæ•°
 };
 
 void SET::setup() {
-    // cout << "ÊäÈë¼¯ºÏ:" << endl;
-    // getline(cin, str_in);
-    ifstream in("input1.txt");
+    string filename;
+    cout << "Please enter your file name:";
+    cin >> filename;
+    ifstream in;
+    in.open(filename, ifstream::in);
     while (!in.eof()) {
         getline(in, str_in);
     }
     in.close();
     cnt_OP = 0;
     str_in += " ";
-    judgement(str_in);
-    // display();
+    M_judgement(str_in);
 }
-bool SET::judgement_binary_relation() {  //ÅĞ¶ÏÊÇ·ñÎª¶şÔª¹ØÏµ
+bool SET::judgement_binary_relation() {  //åˆ¤æ–­æ˜¯å¦ä¸ºäºŒå…ƒå…³ç³»
     if (size() == 0 && OP.size() != 0)
         return true;
     else
         return false;
 }
-void SET::Cartesian_product(const SET& S2) {  //µÑ¿¨¶û»ı
+inline void SET::M_judgement(string str) {
+    int len = str.length();
+    //å°†è¾“å…¥è¡Œåˆ†ç±»åˆ«å­˜å…¥å„å®¹å™¨ä¸­
+    for (int i = 0; i < len; i++) {
+        //åˆ¤æ–­æ˜¯æ•°å­— å­˜å…¥Iä¸­
+        if (str[i] >= '0' && str[i] <= '9' &&
+            (str[i + 1] == ' ' || str[i + 1] == '\0')) {
+            M_SET.insert((int)str[i] - 48);
+            // cout << "Str " << i <<"ä¸ºï¼š" << (int)str[i] << endl;
+        }
+    }
+    //M_display();
+    multiset<int>::iterator it = M_SET.begin();
+    int sum = 1;
+    int cnt = *it; ++it;
+    for (int i = 1; i < M_SET.size(); i++) {
+        if (cnt == *it) {
+            sum++;
+        }
+        else {
+            cout << "The duplication of " << cnt << "is:" << sum << endl;
+            sum = 1;
+        }
+        cnt = *it;
+        ++it;
+    }
+    cout << "The duplication of " << cnt << "is:" << sum << endl;
+}
+void SET::neighborhood(int t) {
+    set<int> temp;
+    for (int i = 0; i < OP.size(); i++) {
+        if (t == OP[i].PI[0]) {
+            temp.insert(OP[i].PI[1]);
+        }
+    }
+    set<int>::iterator it = temp.begin();
+    cout << "The neighborhood is: ";
+    for (int i = 0; i < temp.size(); i++) {
+        cout << *it << " ";
+        ++it;
+    }
+    set<int>::iterator it = temp.begin();
+    cout << "The C_neighborhood is: ";
+    cout << t << " ";
+    for (int i = 0; i < temp.size(); i++) {
+        cout << *it << " ";
+        ++it;
+    }
+}
+
+void SET::judgement_Disordered_product(const SET& s1, const SET& s2) {  //åˆ¤æ–­æ— åºç§¯
+    SET SET3;
+    SET3.setup();
+    set<int>::iterator itint = SET3.I.begin();
+    //SET3.display();
+    if (s1.I.find(*itint) != s1.I.end()) {
+        ++itint;
+        if (s2.I.find(*itint) != s2.I.end()) {
+            cout << "SET3 is disordered product.";
+        }
+        else {
+            cout << "SET3 is not disordered product.";
+        }
+    }
+    else {
+        cout << "SET3 is not disordered product.";
+    }
+}
+void SET::Cartesian_product(const SET& S2) {  //ç¬›å¡å°”ç§¯
     cout << "The Cartesian_product are:" << endl;
     set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
@@ -173,7 +246,7 @@ void SET::Cartesian_product(const SET& S2) {  //µÑ¿¨¶û»ı
         ++itstring;
     }
 }
-void SET::Global_relationship() {  //È«Óò¹ØÏµ
+void SET::Global_relationship() {  //å…¨åŸŸå…³ç³»
     cout << "The Globalrelationship is :";
     set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
@@ -261,7 +334,7 @@ void SET::Global_relationship() {  //È«Óò¹ØÏµ
     }
     cout << endl;
 }
-void SET::Identity_relationship() {  //ºãµÈ¹ØÏµ
+void SET::Identity_relationship() {  //æ’ç­‰å…³ç³»
     cout << "The identity relationship are :";
     set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
@@ -289,7 +362,7 @@ void SET::Identity_relationship() {  //ºãµÈ¹ØÏµ
     }
     cout << endl;
 }
-void SET::LA() {  //Ğ¡ÓÚ»òµÈÓÚ¹ØÏµ
+void SET::LA() {  //å°äºæˆ–ç­‰äºå…³ç³»
     cout << "The LA is :";
     set<int>::iterator itint = I.begin();
     for (int i = 0; i < I.size(); i++) {
@@ -329,7 +402,7 @@ void SET::LA() {  //Ğ¡ÓÚ»òµÈÓÚ¹ØÏµ
     }
     cout << endl;
 }
-void SET::fldR() {  //Óò
+void SET::fldR() {  //åŸŸ
     SET Temp_fldR;
     Temp_fldR = ranR() & domR();
 
@@ -346,7 +419,7 @@ void SET::fldR() {  //Óò
     }
     cout << "}" << endl;
 }
-SET SET::domR() {  //¶¨ÒåÓò
+SET SET::domR() {  //å®šä¹‰åŸŸ
     SET Temp;
     cout << "The domR is :{";
     for (int i = 0; i < OP.size(); i++) {
@@ -365,9 +438,10 @@ SET SET::domR() {  //¶¨ÒåÓò
         ++itchar;
     }
     cout << "} " << endl;
+    cout << Temp.size() << endl; //å›¾é˜¶
     return Temp;
 }
-SET SET::ranR() {  //ÖµÓò
+SET SET::ranR() {  //å€¼åŸŸ
     SET Temp;
     cout << "The ranR is :{";
     for (int i = 0; i < OP.size(); i++) {
@@ -388,11 +462,11 @@ SET SET::ranR() {  //ÖµÓò
     cout << "} " << endl;
     return Temp;
 }
-void SET::inverse() {  //Äæ¹ØÏµ
+void SET::inverse() {  //é€†å…³ç³»
     cout << "The inverse relationship are: ";
     vector<order_pair> OP_temp;
     order_pair op_temp;
-    op_temp = {-1, -1, '\0', '\0', "", ""};
+    op_temp = { -1, -1, '\0', '\0', "", "" };
     for (int i = 0; i < OP.size(); i++) {
         for (int j = 0; j < 2; j++) {
             op_temp.PI[1 - j] = OP[i].PI[j];
@@ -425,9 +499,9 @@ void SET::inverse() {  //Äæ¹ØÏµ
 void SET::judgement(string str) {
     int len = str.length();
     string temp;
-    //½«ÊäÈëĞĞ·ÖÀà±ğ´æÈë¸÷ÈİÆ÷ÖĞ
+    //å°†è¾“å…¥è¡Œåˆ†ç±»åˆ«å­˜å…¥å„å®¹å™¨ä¸­
     for (int i = 0; i < len; i++) {
-        //  ÅĞ¶ÏÊÇĞòÅ¼ ´æÈëvectorµÄ½á¹¹ÌåÖĞ
+        //  åˆ¤æ–­æ˜¯åºå¶ å­˜å…¥vectorçš„ç»“æ„ä½“ä¸­
         if (str[i] == '<') {
             string temp_str;
             while (str[i] != '>') {
@@ -436,13 +510,13 @@ void SET::judgement(string str) {
             temp_str += str[i++];
             judgement_OP(temp_str);
         }
-        //ÅĞ¶ÏÊÇÊı×Ö ´æÈëIÖĞ
+        //åˆ¤æ–­æ˜¯æ•°å­— å­˜å…¥Iä¸­
         else if (str[i] >= '0' && str[i] <= '9' &&
-                 (str[i + 1] == ' ' || str[i + 1] == '\0')) {
+            (str[i + 1] == ' ' || str[i + 1] == '\0')) {
             push_I(str[i]);
-            // cout << "Str " << i <<"Îª£º" << (int)str[i] << endl;
+            // cout << "Str " << i <<"ä¸ºï¼š" << (int)str[i] << endl;
         }
-        //ÅĞ¶ÏÊÇ×Ö·û´® ´æÈëSTRÖĞ
+        //åˆ¤æ–­æ˜¯å­—ç¬¦ä¸² å­˜å…¥STRä¸­
         else if (str[i] != ' ' && str[i + 1] != ' ') {
             while (str[i] != ' ') {
                 temp += str[i];
@@ -451,10 +525,10 @@ void SET::judgement(string str) {
             push_STR(temp);
             temp = "";
         }
-        // ÅĞ¶ÏÊÇÆäËû×Ö·û ´æÈëCHÖĞ
+        // åˆ¤æ–­æ˜¯å…¶ä»–å­—ç¬¦ å­˜å…¥CHä¸­
         else if ((str[i] >= 'a' && str[i] <= 'z') ||
-                 (str[i] >= 'A' && str[i] <= 'Z') && str[i] != ' ' &&
-                     (str[i + 1] == ' ' || str[i + 1] == '\0'))
+            (str[i] >= 'A' && str[i] <= 'Z') && str[i] != ' ' &&
+            (str[i + 1] == ' ' || str[i + 1] == '\0'))
             push_CH(str[i]);
         // cout << "Error:" << str[i] << " Illegal character"<< endl;
     }
@@ -463,16 +537,16 @@ void SET::judgement_OP(string str_OP) {
     int len = str_OP.length();
     string temp;
     int cnt = 0;
-    //½«ÊäÈëĞĞ·ÖÀà±ğ´æÈëĞòÅ¼ÈİÆ÷ÖĞ
+    //å°†è¾“å…¥è¡Œåˆ†ç±»åˆ«å­˜å…¥åºå¶å®¹å™¨ä¸­
     order_pair op_temp;
-    op_temp = {-1, -1, '\0', '\0', "", ""};
+    op_temp = { -1, -1, '\0', '\0', "", "" };
     for (int i = 0; i < len; i++) {
-        //ÅĞ¶ÏÊÇ, ÔòĞòÅ¼Ç°°ë²¿·Ö½áÊø´¢´æ ¿ªÊ¼ºó°ë²¿·ÖĞòÅ¼µÄ´¢´æ
+        //åˆ¤æ–­æ˜¯, åˆ™åºå¶å‰åŠéƒ¨åˆ†ç»“æŸå‚¨å­˜ å¼€å§‹ååŠéƒ¨åˆ†åºå¶çš„å‚¨å­˜
         if (str_OP[i] == ',' || str_OP[i] == '<') i++;
         if (cnt == 2) {
             break;
         }
-        //ÅĞ¶ÏÊÇÊı×Ö ´æÈëOPIÖĞ
+        //åˆ¤æ–­æ˜¯æ•°å­— å­˜å…¥OPIä¸­
         if (str_OP[i] >= '0' && str_OP[i] <= '9' &&
             (str_OP[i + 1] == ',' || str_OP[i + 1] == '>')) {
             // cout << "cnt "<< "is: " << cnt << endl;
@@ -481,7 +555,7 @@ void SET::judgement_OP(string str_OP) {
             // cout << "op[cnt_OP].PI[cnt]=" << OP[cnt_OP].PI[cnt] << endl;
             cnt++;
         }
-        //ÅĞ¶ÏÊÇ×Ö·û´® ´æÈëOPSTRÖĞ
+        //åˆ¤æ–­æ˜¯å­—ç¬¦ä¸² å­˜å…¥OPSTRä¸­
         else if (str_OP[i + 1] != ',' && str_OP[i + 1] != '>') {
             while (str_OP[i] != ',' && str_OP[i] != '>') {
                 temp += str_OP[i];
@@ -494,10 +568,10 @@ void SET::judgement_OP(string str_OP) {
             cnt++;
             temp = "";
         }
-        // ÅĞ¶ÏÊÇÆäËû×ÖÄ¸×Ö·û ´æÈëOPCHÖĞ
+        // åˆ¤æ–­æ˜¯å…¶ä»–å­—æ¯å­—ç¬¦ å­˜å…¥OPCHä¸­
         else if ((str_OP[i] >= 'a' && str_OP[i] <= 'z') ||
-                 (str_OP[i] >= 'A' && str_OP[i] <= 'Z') &&
-                     (str_OP[i + 1] == ',' || str_OP[i + 1] == '>')) {
+            (str_OP[i] >= 'A' && str_OP[i] <= 'Z') &&
+            (str_OP[i + 1] == ',' || str_OP[i + 1] == '>')) {
             op_temp.PCH[cnt] = str_OP[i];
             cnt++;
         }
@@ -518,7 +592,7 @@ inline void SET::judgement_domR(int x) {}
 inline bool SET::operator<(const SET& S) const {
     return SETHash() < S.SETHash();
 }
-inline void SET::show(int x, int y) {  //Êä³öËùÓĞÔİ´æĞòÅ¼
+inline void SET::show(int x, int y) {  //è¾“å‡ºæ‰€æœ‰æš‚å­˜åºå¶
     if (OP[x].PI[y] != -1) {
         cout << OP[x].PI[y];
     }
@@ -557,7 +631,14 @@ void SET::display() {
         cout << "> ";
     }
 }
-void SET::display_Relationship_matrix() {  //¹ØÏµ¾ØÕóÊä³ö
+void SET::M_display() {
+    multiset<int>::iterator itint = M_SET.begin();
+    for (int i = 0; i < M_SET.size(); i++) {
+        cout << *itint << " " << endl;
+        itint++;
+    }
+}
+void SET::display_Relationship_matrix() {  //å…³ç³»çŸ©é˜µè¾“å‡º
     set<int>::iterator itint = I.begin();
     int cnt = 0;
     for (int i = 0; i < I.size(); i++) {
@@ -578,7 +659,7 @@ void SET::display_Relationship_matrix() {  //¹ØÏµ¾ØÕóÊä³ö
         cout << "|" << endl;
     }
 }
-SET SET::operator*(const SET& t) {  //½»¼¯
+SET SET::operator*(const SET& t) {  //äº¤é›†
     SET Temp;
     for (int i : I)
         if (t.I.find(i) != t.I.end()) Temp.push(i);
@@ -591,14 +672,14 @@ SET SET::operator*(const SET& t) {  //½»¼¯
 
     return Temp;
 }
-SET SET::operator&(const SET& t) {  //²¢¼¯
+SET SET::operator&(const SET& t) {  //å¹¶é›†
     SET Temp = t;
     Temp.I.insert(I.begin(), I.end());
     Temp.CH.insert(CH.begin(), CH.end());
     Temp.STR.insert(STR.begin(), STR.end());
     return Temp;
 }
-SET SET::operator-(const SET& t) {  //²î¼¯
+SET SET::operator-(const SET& t) {  //å·®é›†
     SET Temp;
     for (int i : I)
         if (t.I.find(i) == t.I.end()) Temp.push(i);
@@ -610,7 +691,7 @@ SET SET::operator-(const SET& t) {  //²î¼¯
         if (t.STR.find(str) == t.STR.end()) Temp.push(str);
     return Temp;
 }
-SET SET::Symmetrical_difference(const SET& S1, const SET& S2) {  //¶Ô³Æ²î
+SET SET::Symmetrical_difference(const SET& S1, const SET& S2) {  //å¯¹ç§°å·®
     SET Temp;
     for (int i : S1.I)
         if (S2.I.find(i) == S2.I.end()) Temp.push(i);
@@ -630,24 +711,27 @@ SET SET::Symmetrical_difference(const SET& S1, const SET& S2) {  //¶Ô³Æ²î
         if (S1.STR.find(str) == S1.STR.end()) Temp.push(str);
     return Temp;
 }
-void SET::power(int i, SET T, SET* Res) {  //Ãİ¼¯
+void SET::power(int i, SET T, SET* Res) {  //å¹‚é›†
     if (i == size()) {
         Res->push(T);
         return;
-    } else {
+    }
+    else {
         power(i + 1, T, Res);
         int ii = i;
         if (ii < I.size()) {
             set<int>::iterator isi = I.begin();
             for (int I = 0; I < ii; I++) isi++;
             T.push(*isi);
-        } else {
+        }
+        else {
             ii -= I.size();
             if (ii < CH.size()) {
                 set<char>::iterator chsi = CH.begin();
                 for (int I = 0; I < ii; I++) chsi++;
                 T.push(*chsi);
-            } else {
+            }
+            else {
                 ii -= CH.size();
                 if (ii < STR.size()) {
                     set<string>::iterator strsi = STR.begin();
@@ -694,25 +778,84 @@ inline SET SET::power() {
     power(0, SET(), &RES);
     return RES;
 }
+/***********************************SETç±»çš„å®Œæ•´å£°æ˜*************************************/
+
+/******************************Multiple_SETç±»çš„å®Œæ•´å£°æ˜*********************************/
+/*class Multiple_SET {
+public:
+    void setup();
+    inline void M_judgement(string str);
+private:
+    string M_str_in;
+    priority_queue<int, vector<int>, greater<int> > Multiple_sets; //ç”¨æ¥å­˜å‚¨å¤šé‡é›†
+};
+
+void Multiple_SET::setup() {
+    string filename;
+    cout << "Please enter your file name:";
+    cin >> filename;
+    ifstream in;
+    in.open(filename, ifstream::in);
+    while (!in.eof()) {
+        getline(in, M_str_in);
+    }
+    in.close();
+    M_str_in += " ";
+    M_judgement(M_str_in);
+}
+
+inline void Multiple_SET::M_judgement(string str) {
+    int len = str.length();
+    string temp;
+    //å°†è¾“å…¥è¡Œåˆ†ç±»åˆ«å­˜å…¥å„å®¹å™¨ä¸­
+    for (int i = 0; i < len; i++) {
+        //åˆ¤æ–­æ˜¯æ•°å­— å­˜å…¥Iä¸­
+        if (str[i] >= '0' && str[i] <= '9' &&
+            (str[i + 1] == ' ' || str[i + 1] == '\0')) {
+            Multiple_sets.push((int)str[i]-48);
+            // cout << "Str " << i <<"ä¸ºï¼š" << (int)str[i] << endl;
+        }
+    }
+    int cnt = Multiple_sets.top();
+    int sum = 0;
+    for (int i = 0; i < Multiple_sets.size(); i++) {
+        cout << Multiple_sets.top() << " " << endl;
+        if (cnt = Multiple_sets.top()) {
+            sum += 1;
+            Multiple_sets.pop();
+        }
+        else {
+            cout << "The duplication of " << cnt << "is:" << sum << endl;
+            sum = 0;
+            Multiple_sets.pop();
+            cnt = Multiple_sets.top();
+        }
+    }
+
+}
+*/
+/******************************Multiple_SETç±»çš„å®Œæ•´å£°æ˜*********************************/
 
 int main() {
     SET SET1;
     //SET SET2;
-    // in2 >> SET2.str_in;
-    SET1.setup();
-    SET1.display_Relationship_matrix();
+    //SET1.setup();
     //SET2.setup();
-
+    SET1.setup();
+    SET1.domR(); // é¡¶ç‚¹é›†
+    SET1.Cartesian_product(SET1); // è¾¹é›†
     // if (SET1.judgement_binary_relation())
-    //     cout << "SET1ÊÇ¶şÔª¹ØÏµ" << endl;
+    //     cout << "SET1æ˜¯äºŒå…ƒå…³ç³»" << endl;
     // else
-    //     cout << "SET1²»ÊÇ¶şÔª¹ØÏµ" << endl;
-    // SET1.Cartesian_product(SET2);    //µÑ¿¨¶û»ı
-    // SET1.Global_relationship();      //È«Óò¹ØÏµ
-    // SET1.Identity_relationship();    //ºãµÈ¹ØÏµ
-    // SET1.LA();                       //Ğ¡ÓÚ»òµÈÓÚ¹ØÏµ
-    // SET1.fldR();                     //Óò
-    // SET1.inverse();                  //Äæ¹ØÏµ
+    //     cout << "SET1ä¸æ˜¯äºŒå…ƒå…³ç³»" << endl;
+    // SET1.judgement_Disordered_product(SET1,SET2); //åˆ¤æ–­æ— åºç§¯
+    // SET1.Cartesian_product(SET2);    //ç¬›å¡å°”ç§¯
+    // SET1.Global_relationship();      //å…¨åŸŸå…³ç³»
+    // SET1.Identity_relationship();    //æ’ç­‰å…³ç³»
+    // SET1.LA();                       //å°äºæˆ–ç­‰äºå…³ç³»
+    // SET1.fldR();                     //åŸŸ
+    // SET1.inverse();                  //é€†å…³ç³»
+    // SET1.display_Relationship_matrix();  //çŸ©é˜µè¾“å‡º
 
     return 0;
 }
