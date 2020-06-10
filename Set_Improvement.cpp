@@ -39,14 +39,24 @@ public:
     void judgement(string str);
     void judgement_OP(string str_OP);
     void judgement_Disordered_product(const SET& s1, const SET& s2); //判断是否是无序积
-    bool judgement_binary_relation();                          //判断是否为二元关系
-    void neighborhood(int t);
+    void judgement_binary_relation();                          //判断是否为二元关系
+    void neighborhood(int t);                                  //邻域 闭邻域
+    void Link_set(int t);                                      //关联集
+    void Figure_order();                                       //输出图阶
+    void Cnt_EG();                                             //输出边数
+    bool EG_empty();                                           //判断零图
+    bool Figure_empty();                                       //判断空图
+    void judgement_parallel();                                 //输出平行边
+    int degree(int v);                                         //输出度
+    void max_degree();                                         //输出最大度
+    void min_degree();                                         //输出最小度
+    void Link_branch();                                        //输出连通分支数
     inline size_t size() const;
     size_t SETHash() const;
     inline SET power();
     void display();
     void M_display();
-    void display_Relationship_matrix();                       //显示矩阵
+    void display_Relationship_matrix();                        //显示矩阵
     inline void push(int IN);
     inline void push(char ch);
     inline void push(string str);
@@ -57,18 +67,18 @@ public:
     inline void show(int x, int y);
     inline void judgement_domR(int x);
     inline void M_judgement(string str);
-    inline bool operator<(const SET& S) const;               //重载<
-    friend ostream& operator<<(ostream& os, SET& S);         //声明重载符号<<(友元)
+    inline bool operator<(const SET& S) const;                //重载<
+    friend ostream& operator<<(ostream& os, SET& S);          //声明重载符号<<(友元)
 
 private:
     set<int> I;
     set<char> CH;
     set<string> STR;
     set<SET> SETS;
-    vector<order_pair> OP;                                   //用来存储序偶
-    multiset<int> M_SET;                                     //用来存储多重集
-    string str_in;                                           //用来存储读取的数据
-    int cnt_OP;                                              //用来存储序偶的个数
+    vector<order_pair> OP;                                    //用来存储序偶
+    multiset<int> M_SET;                                      //用来存储多重集
+    string str_in;                                            //用来存储读取的数据
+    int cnt_OP;                                               //用来存储序偶的个数
 };
 
 void SET::setup() {
@@ -83,13 +93,13 @@ void SET::setup() {
     in.close();
     cnt_OP = 0;
     str_in += " ";
-    M_judgement(str_in);
+    judgement(str_in);
 }
-bool SET::judgement_binary_relation() {  //判断是否为二元关系
+void SET::judgement_binary_relation() {  //判断是否为二元关系
     if (size() == 0 && OP.size() != 0)
-        return true;
+        cout << "SET1是二元关系" << endl;
     else
-        return false;
+        cout << "SET1不是二元关系" << endl;  
 }
 inline void SET::M_judgement(string str) {
     int len = str.length();
@@ -98,7 +108,7 @@ inline void SET::M_judgement(string str) {
         //判断是数字 存入I中
         if (str[i] >= '0' && str[i] <= '9' &&
             (str[i + 1] == ' ' || str[i + 1] == '\0')) {
-            M_SET.insert((int)str[i] - 48);
+            M_SET.insert((int)str[i]-48);
             // cout << "Str " << i <<"为：" << (int)str[i] << endl;
         }
     }
@@ -119,8 +129,9 @@ inline void SET::M_judgement(string str) {
     }
     cout << "The duplication of " << cnt << "is:" << sum << endl;
 }
-void SET::neighborhood(int t) {
+void SET::neighborhood(int t) {                              //邻集、闭邻集
     set<int> temp;
+    cout << "The neighborhood set is :{";
     for (int i = 0; i < OP.size(); i++) {
         if (t == OP[i].PI[0]) {
             temp.insert(OP[i].PI[1]);
@@ -132,15 +143,173 @@ void SET::neighborhood(int t) {
         cout << *it << " ";
         ++it;
     }
-    set<int>::iterator it = temp.begin();
+    set<int>::iterator itint = temp.begin();
     cout << "The C_neighborhood is: ";
     cout << t << " ";
     for (int i = 0; i < temp.size(); i++) {
-        cout << *it << " ";
+        cout << *itint << " ";
+        ++itint;
+    }
+    cout << "}" << endl;
+}
+void SET::Link_set(int t) {                  //用来输出关联集
+    cout << "The link set is : {";
+    for (int i = 0; i < OP.size(); i++) {
+        if (t==OP[i].PI[0] || t == OP[i].PI[1]) {
+            cout << "<";
+            for (int j = 0; j < 2; j++) {
+                show(i, j);
+                if (j != 1) cout << ",";
+            }
+            cout << "> ";
+        }
+    }
+    cout << "}" << endl;
+}
+void SET::Figure_order() {                                   //输出图阶
+    cout << "The order of figure is " << size() << endl;
+}
+void SET::Cnt_EG() {                                         //输出边数
+    cout << OP.size() << endl;
+}
+bool SET::EG_empty() {                                       //判断是否为零图
+    if (OP.size() == 0)
+        return true;
+    else
+        return false;
+}
+bool SET::Figure_empty() {                                   //判断图是否为空
+    if (size() == 0)
+        return true;
+    else
+        return false;
+}
+void SET::judgement_parallel() {
+    cout << "The parallel lines is :";
+    for (int i = 0; i < OP.size(); i++) {
+        for (int j = i + 1; j < OP.size(); i++) {
+            if (OP[i].PI[0] == OP[j].PI[0] && OP[i].PI[1] == OP[j].PI[1]) {
+                cout << "<";
+                for (int z = 0; z < 2; z++) {
+                    show(i, z);
+                    if (z != 1) cout << ",";
+                }
+                cout << "<";
+            }
+        }
+    }
+    cout << endl;
+}
+void SET::max_degree() {                                     //输出最大度
+    set<int>::iterator it = I.begin();
+    int maxn = *it; ++it;
+    cout << "The max degree is: ";
+    for (int i = 1; i < size(); i++) {
+        if (maxn < *it)
+            maxn = *it;
         ++it;
     }
+    cout << maxn << endl;
 }
-
+void SET::min_degree() {                                     //输出最小度
+    set<int>::iterator it = I.begin();
+    int minn = *it; ++it;
+    cout << "The min degree is: ";
+    for (int i = 1; i < size(); i++) {
+        if (minn > *it)
+            minn = *it;
+        ++it;
+    }
+    cout << minn << endl;
+}
+int SET::degree(int v) {                                         //用来输出度
+    cout << "The degree of " << v << " is:";
+    int cnt = 0;
+    for (int i = 0; i < OP.size();i++) {
+        if (v == OP[i].PI[0])
+            cnt++;
+        if (v == OP[i].PI[1])
+            cnt++;
+    }
+    cout << cnt << endl;
+    return cnt;
+}
+void SET::Link_branch() {                                        //输出连通分支(默认排列有序)
+    int cnt_Link_branch = 0;
+    vector<order_pair> OP_temp;//用于输出的边
+    vector<order_pair> OP_remain;//剩余的边
+    order_pair temp;
+    int cnt = 0;//用来存储连通分支个数
+    int L = OP[0].PI[0];
+    int R = OP[0].PI[1];
+    temp = { L, R, '\0', '\0', "", "" };
+    OP_temp.push_back(temp);
+    for (int i = 1; i < OP.size(); i++) {//先遍历右端点
+        if (R == OP[i].PI[0]) {
+            R = OP[i].PI[1];
+            temp.PI[0] = OP[i].PI[0];
+            temp.PI[1] = OP[i].PI[1];
+            OP_temp.push_back(temp);
+            if (L == OP[i].PI[1]) {
+                cnt++;
+            }
+        }
+        else {
+            temp.PI[0] = OP[i].PI[0];
+            temp.PI[1] = OP[i].PI[1];
+            OP_remain.push_back(temp);
+        }
+    }
+    L = OP_remain[0].PI[0];
+    R = OP_remain[0].PI[1];
+    for (int i = 1; i < OP_remain.size(); i++) {
+        if (R != OP[i].PI[0]) {
+            cnt++;
+        }
+    }
+    for (int i = 0; i < OP_temp.size(); i++) {
+        cout << "<";
+        for (int j = 0; j < 2; j++) {
+            if (OP_temp[i].PI[j] != -1) {
+                cout << OP_temp[i].PI[j];
+            }
+            if (OP_temp[i].PCH[j] != '\0') {
+                cout << OP_temp[i].PCH[j];
+            }
+            if (OP_temp[i].PSTR0 != "" && j != 1) {
+                cout << OP_temp[i].PSTR0;
+            }
+            if (OP_temp[i].PSTR1 != "" && j != 0) {
+                cout << OP_temp[i].PSTR1;
+            }
+            if (j != 1) cout << ",";
+        }
+        cout << "> ";
+    }
+    cout << endl;
+    for (int i = 0; i < OP_remain.size(); i++) {
+        cout << "<";
+        for (int j = 0; j < 2; j++) {
+            if (OP_remain[i].PI[j] != -1) {
+                cout << OP_remain[i].PI[j];
+            }
+            if (OP_remain[i].PCH[j] != '\0') {
+                cout << OP_remain[i].PCH[j];
+            }
+            if (OP_remain[i].PSTR0 != "" && j != 1) {
+                cout << OP_remain[i].PSTR0;
+            }
+            if (OP_remain[i].PSTR1 != "" && j != 0) {
+                cout << OP_remain[i].PSTR1;
+            }
+            if (j != 1) cout << ",";
+        }
+        cout << "> ";
+    }
+    cout << endl;
+    cout << "The link branch is:"<<cnt << endl;
+    cout << endl;
+}
 void SET::judgement_Disordered_product(const SET& s1, const SET& s2) {  //判断无序积
     SET SET3;
     SET3.setup();
@@ -839,16 +1008,20 @@ inline void Multiple_SET::M_judgement(string str) {
 int main() {
     SET SET1;
     //SET SET2;
-    //SET1.setup();
-    //SET2.setup();
     SET1.setup();
-    SET1.domR(); // 顶点集
-    SET1.Cartesian_product(SET1); // 边集
-    // if (SET1.judgement_binary_relation())
-    //     cout << "SET1是二元关系" << endl;
-    // else
-    //     cout << "SET1不是二元关系" << endl;
+    //SET2.setup();
+    SET1.Link_branch();
+    
+    // SET1.Figure_empty();             //判断是否为空图
+    // SET1.EG_empty();                 //判断是否为零图
+    // SET1.judgement_parallel();       //输出平行边
+    // SET1.Link_set();                 //输出关联集 参数为某顶点
+    // SET1.neighborhood();             //输出邻域 闭邻域 参数为某顶点
+    // SET1.degree();                   //输出度 参数为某顶点
+    // SET1.Cnt_EG();                   //输出边数
+    // SET1.Figure_order();             //输出图阶
     // SET1.judgement_Disordered_product(SET1,SET2); //判断无序积
+
     // SET1.Cartesian_product(SET2);    //笛卡尔积
     // SET1.Global_relationship();      //全域关系
     // SET1.Identity_relationship();    //恒等关系
